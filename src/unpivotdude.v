@@ -32,8 +32,7 @@ fn main()
         return
     }
 
-	if pivot_column_arg.len==0 || header_column_arg.len==0 ||
-		file_in.len==0
+	if pivot_column_arg.len==0 || file_in.len==0
 	{
         println(fp.usage())
         return
@@ -46,9 +45,6 @@ fn main()
 
 	lines := os.read_lines(file_in) or {panic(err)}
 
-	mut data_array := []Data{}
-	mut data_struct := Data{}
-
 	mut delimited_header := []string{}
 
 	for index,line in lines
@@ -56,7 +52,28 @@ fn main()
 		if index==0 && has_header
 		{
 			delimited_header = line.split("\t")
+
+			for cols in pivot_column
+			{
+				print("${delimited_header[cols]}\t")
+			}
+		
+			if header_column.len != 0
+			{
+				println("unpivot_col\tunpivot_val")
+			}
+			else
+			{
+				println("")
+			}
 			continue
+		}
+		else if index==0 && !has_header
+		{
+			for value in pivot_column
+			{
+				print("col_$value\t")
+			}
 		}
 
 		delimited_row := line.split("\t")
@@ -64,56 +81,36 @@ fn main()
 
 		for cols in pivot_column
 		{
-			pivot_col_string += delimited_row[cols.int()] + "\t"
+			pivot_col_string += delimited_row[cols] + "\t"	
+		}
+
+		if header_column.len == 0 // no -h flag passed
+		{
+			print("$pivot_col_string\n")
+			continue
 		}
 
 		for heads in header_column
 		{
-			data_struct.pivot_col = pivot_col_string.all_before_last("\t")
-			data_struct.value = delimited_row[heads.int()]
-
-			if has_header
-			{
-				data_struct.header_elem = delimited_header[heads.int()]
-			}
-			else
-			{
-				data_struct.header_elem = heads
-			}
-			data_array << data_struct	
+			print(pivot_col_string)
+			print(delimited_header[heads])
+			print("\t")
+			print(delimited_row[heads])
+			print("\n")
 		}
-	}
-
-	// Print out the header
-	if !has_header // Source data does not have header; make one...
-	{
-		for value in pivot_column
-		{
-			print("col_$value\t")
-		}
-	}
-	else // has header
-	{
-		for cols in pivot_column
-		{
-			print("${delimited_header[cols.int()]}\t")
-		}
-	}
-	println("unpivot_col\tunpivot_val")
-	// End of header creation...
-
-	for data_pt in data_array
-	{
-		println("${data_pt.pivot_col}\t${data_pt.header_elem}\t${data_pt.value}")
-
-	}
+	}	
 }
 
-// "1,2,5-10,8"  ==> ['1', '2', '5', '6', '7', '8', '9', '10', '8']
-fn expand_int_string(ranges string) []string
+// "1,2,5-10,8"  ==> [1,2,5,6,7,8,9,10,8]
+fn expand_int_string(ranges string) []int
 {
 	ranges_split := ranges.split(",")
-	mut return_arr := []string{}
+	mut return_arr := []int{}
+
+	if ranges.len == 0
+	{
+		return return_arr
+	}
 
 	for elem in ranges_split
 	{
@@ -126,22 +123,14 @@ fn expand_int_string(ranges string) []string
 
 			for i:=lower_bound; i<=upper_bound; i++
 			{
-				return_arr << i.str()
+				return_arr << i
 			}
 		}
 		else
 		{
-			return_arr << elem
+			return_arr << elem.int()
 		}
 	}
 
 	return return_arr
-}
-	
-struct Data
-{
-	mut:
-		header_elem string
-		pivot_col string
-		value string
 }

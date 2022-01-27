@@ -84,7 +84,7 @@ _Note that the -p and -h options can be passed individual column indexes, or ran
 
 ----
 
-`unpivotdude.exe -f ..\..\examples\sample1.txt -p 0,2 -h 3-5 > ..\..\examples\sample1_out.txt`
+`unpivotdude.exe -f ..\examples\sample1.txt -p 0,2 -h 3-5 > ..\examples\sample1_out.txt`
 
 **sample1.txt :::**
 
@@ -93,3 +93,15 @@ _Note that the -p and -h options can be passed individual column indexes, or ran
 **sample1_out.txt :::**
 
 ![Example 1](img/sample1_out.png)
+
+Alternatively, you can specify just the -p flag if you want to select certain columns (and not unpivot anything).
+
+`unpivotdude.exe -f ..\examples\sample1.txt -p 0,2 > ..\examples\sample1_out.txt`
+
+**sample2.txt :::**
+
+![Example 2](img/sample2.png)
+
+**sample2_out.txt :::**
+
+![Example 2](img/sample2_out.png)
